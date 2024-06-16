@@ -36,7 +36,6 @@ module cafeteria::cafeteria {
         id: UID,
         items: Table<address, MenuItem>,
         balance: Balance<SUI>
- 
     }
 
     struct AdminCap has key {id: UID}
@@ -66,56 +65,49 @@ module cafeteria::cafeteria {
         user
     }
 
-    // // Function to get user details
-    // public fun get_user_details(user: &User): (String, &Balance<SUI>, u64) {
-    //     (user.name, &user.balance, user.loyalty_points)
-    // }
+    // Function to get user details
+    public fun get_user_details(user: &User): (String, &Balance<SUI>, u64) {
+        (user.name, &user.balance, user.loyalty_points)
+    }
 
-    // // Function to add balance to the user's account
-    // public fun add_balance(user: &mut User, amount: Coin<SUI>) {
+    // Function to add balance to the user's account
+    public fun add_balance(user: &mut User, amount: Coin<SUI>) {
 
-    //     let balance_to_add = coin::into_balance(amount);
-    //     balance::join(&mut user.balance, balance_to_add);
-    // }
+        let balance_to_add = coin::into_balance(amount);
+        balance::join(&mut user.balance, balance_to_add);
+    }
 
-    // // Function to add loyalty points to the user's account
-    // public fun add_loyalty_points(user: &mut User, points: u64) {
-    //     user.loyalty_points = user.loyalty_points + points;
-    // }
+    // Function to add loyalty points to the user's account
+    public fun add_loyalty_points(user: &mut User, points: u64) {
+        user.loyalty_points = user.loyalty_points + points;
+    }
 
-    //  // Function to create a menu item
-    // public fun create_menu_item(
-    //     name: String,
-    //     price: u64,
-    //     ctx: &mut TxContext,
-    // ): MenuItem {
-    //     let menu_item_id = object::new(ctx);
-    //     let item = MenuItem {
-    //         id: menu_item_id,
-    //         name,
-    //         price,
-    //     };
-    //     item
-    // }
-    //  // Function to place an order
-    // public fun place_order(
-    //     user: &mut User,
-    //     items: vector<MenuItem>,
-    //     discount: u64,
-    //     total_price: u64,
-    //     ctx: &mut TxContext,
-    // ): Order {
-    //     let order_id = object::new(ctx);        
-    //     let order = Order {
-    //         id: order_id,
-    //         user: object::uid_to_inner(&user.id),
-    //         items,
-    //         total_price,
-    //         is_paid: false,
-    //         discount,
-    //     };
-    //     order
-    // }
+     // Function to create a menu item
+    public fun create_menu_item(
+        name: String,
+        price: u64,
+        ctx: &mut TxContext,
+    ): MenuItem {
+        let menu_item_id = object::new(ctx);
+        let item = MenuItem {
+            id: menu_item_id,
+            name,
+            price,
+        };
+        item
+    }
+     // Function to place an order
+    public fun place_order(
+        self: &mut Orders,
+        user: &mut User,
+        menu: MenuItem,
+        ctx: &mut TxContext,
+    ) {
+        let balance_ = balance::split(&mut user.balance, menu.price);
+        let amount = balance::join(&mut self.balance, balance_);
+        // add menu to table
+        table::add(&mut self.items, sender(ctx), menu);
+    }
 
     
     // // Function to get order details
