@@ -34,7 +34,7 @@ module cafeteria::cafeteria {
       // Order struct
     struct Orders has key, store {
         id: UID,
-        items: Table<address, MenuItem>,
+        items: Table<ID, MenuItem>,
         balance: Balance<SUI>
     }
 
@@ -109,7 +109,17 @@ module cafeteria::cafeteria {
         let points = menu.price / 10;
         user.loyalty_points = user.loyalty_points + points;
         // add menu to table
-        table::add(&mut self.items, sender(ctx), menu);
+        table::add(&mut self.items, object::id(&menu), menu);
+    }
+
+    public fun accept_order(_:&AdminCap, self: &mut Orders, menu: ID) {
+        let menu = table::remove(&mut self.items, menu);
+        let MenuItem {
+            id,
+            name: _,
+            price: _,
+        } = menu;
+        object::delete(id);
     }
 
     // Function to process payment for an order using loyalty points
@@ -122,7 +132,7 @@ module cafeteria::cafeteria {
         assert!(user.loyalty_points >= menu.price, ERR_INSUFFICIENT_BALANCE);
         user.loyalty_points = user.loyalty_points - menu.price;
         // add menu to table
-        table::add(&mut self.items, sender(ctx), menu);
+        table::add(&mut self.items, object::id(&menu), menu);
     }
 
     public fun withdraw(_:&AdminCap, self: &mut Orders, amount: u64, ctx: &mut TxContext) : Coin<SUI> {
