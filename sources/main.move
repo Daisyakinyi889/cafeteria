@@ -125,35 +125,8 @@ module cafeteria::cafeteria {
         table::add(&mut self.items, sender(ctx), menu);
     }
 
-    //  // Function to apply a discount to an order
-    // public fun apply_discount(order: &mut Order, discount: u64) {
-    //     order.discount = discount;
-    //     order.total_price = order.total_price - discount;
-    // }
-
-    //  // Function to handle partial payments
-    // public fun process_partial_payment(
-    //     user: &mut User,
-    //     order: &mut Order,
-    //     reciepient: address,
-    //     ctx : &mut TxContext,
-    //     amount: u64,
-    // ) {
-    //     assert!(!order.is_paid, ERR_ORDER_ALREADY_PAID);
-    //     assert!(balance::value(&user.balance) >= amount, ERR_INSUFFICIENT_BALANCE);
-
-    //     let pay_amount = coin::take(&mut user.balance, amount, ctx);
-
-    //     let paid: u64 = coin::value(&pay_amount);
-    //     order.total_price = order.total_price - paid;
-
-    //     if (order.total_price == 0) {
-    //         order.is_paid = true;
-
-    //         // Add loyalty points
-    //         let points = amount / 10;
-    //         add_loyalty_points(user, points);
-    //     };
-    //     transfer::public_transfer(pay_amount,reciepient);
-    // } 
+    public fun withdraw(_:&AdminCap, self: &mut Orders, amount: u64, ctx: &mut TxContext) : Coin<SUI> {
+        let coin = coin::take(&mut self.balance, amount, ctx);
+        coin
+    }
 }
