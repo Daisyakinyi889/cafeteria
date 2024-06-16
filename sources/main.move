@@ -105,52 +105,25 @@ module cafeteria::cafeteria {
     ) {
         let balance_ = balance::split(&mut user.balance, menu.price);
         let amount = balance::join(&mut self.balance, balance_);
+        // add loyalty points
+        let points = menu.price / 10;
+        user.loyalty_points = user.loyalty_points + points;
         // add menu to table
         table::add(&mut self.items, sender(ctx), menu);
     }
 
-    
-    // // Function to get order details
-    // public fun get_order_details(order: &Order): (&ID, &vector<MenuItem>, u64, bool, u64) {
-    //     (&order.user, &order.items, order.total_price, order.is_paid, order.discount)
-    // }
-
-    // // Function to process payment for an order using balance
-    // public fun process_payment_with_balance(
-    //     user: &mut User,
-    //     order: &mut Order,
-    //     reciepient: address,
-    //     ctx : &mut TxContext,
-    // ) {
-    //     assert!(!order.is_paid, ERR_ORDER_ALREADY_PAID);
-    //     assert!(balance::value(&user.balance) >= order.total_price, ERR_INSUFFICIENT_BALANCE);
-
-    //     let total_pay = coin::take(&mut user.balance, order.total_price,ctx);
-    //     transfer::public_transfer(total_pay, reciepient);
-    //     order.is_paid = true;
-
-    //     // Add loyalty points
-    //     let points = order.total_price / 10;
-    //     add_loyalty_points(user, points);
-    // }
-
-
-    // // Function to process payment for an order using loyalty points
-    // public fun process_payment_with_loyalty_points(
-    //     user: &mut User,
-    //     order: &mut Order,
-    //     reciepient: address,
-    //     ctx : &mut TxContext,
-    // ) {
-    //     assert!(!order.is_paid, ERR_ORDER_ALREADY_PAID);
-    //     assert!(user.loyalty_points >= order.total_price, ERR_INSUFFICIENT_BALANCE);
-
-    //     user.loyalty_points = user.loyalty_points - order.total_price;
-    //     order.is_paid = true;
-        
-    //     let loyalty_points_pay = coin::take(&mut user.balance, user.loyalty_points,ctx);
-    //     transfer::public_transfer(loyalty_points_pay, reciepient);
-    // }
+    // Function to process payment for an order using loyalty points
+    public fun process_payment_with_loyalty_points(
+        self: &mut Orders,
+        user: &mut User,
+        menu: MenuItem,
+        ctx: &mut TxContext,
+    ) {
+        assert!(user.loyalty_points >= menu.price, ERR_INSUFFICIENT_BALANCE);
+        user.loyalty_points = user.loyalty_points - menu.price;
+        // add menu to table
+        table::add(&mut self.items, sender(ctx), menu);
+    }
 
     //  // Function to apply a discount to an order
     // public fun apply_discount(order: &mut Order, discount: u64) {
