@@ -20,30 +20,30 @@ This module manages user accounts, including registration, balance management, a
 ``` move
     struct User has key, store {
     id: UID,
-    name: vector<u8>,
+    name: String,
     balance: Balance<SUI>,
     loyalty_points: u64,
 }
 ```
-- **register_user(name: vector<u8>, ctx: &mut TxContext): User:**
+- **register_user(name: String, ctx: &mut TxContext): User:**
 
 Registers a new user with the provided name and initializes their balance and loyalty points to zero.
 
 ```move
 
 public fun register_user(
-    name: vector<u8>,
+    name: String,
     ctx: &mut TxContext,
 ): User
 ```
 
-- **get_user_details(user: &User): (vector<u8>, &Balance<SUI>, u64):**
+- **get_user_details(user: &User): (String, &Balance<SUI>, u64):**
 
 Returns the user's name, balance, and loyalty points.
 
 ```move
 
-public fun get_user_details(user: &User): (vector<u8>, &Balance<SUI>, u64)
+public fun get_user_details(user: &User): (String, &Balance<SUI>, u64)
 ```
 
 - **add_balance(user: &mut User, amount: Coin<SUI>):**
@@ -72,7 +72,7 @@ This module handles the creation of menu items and the placement and management 
 ```move
 struct MenuItem has key, store {
     id: UID,
-    name: vector<u8>,
+    name: String,
     price: u64,
 }
  ```
@@ -91,14 +91,14 @@ struct Order has key, store {
 }
 ```
 
-- **create_menu_item(name: vector<u8>, price: u64, ctx: &mut TxContext): MenuItem:**
+- **create_menu_item(name: String, price: u64, ctx: &mut TxContext): MenuItem:**
 
 Creates a new menu item with the given name and price.
 
 ```move
 
 public fun create_menu_item(
-    name: vector<u8>,
+    name: String,
     price: u64,
     ctx: &mut TxContext,
 ): MenuItem
